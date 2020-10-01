@@ -2,8 +2,7 @@
 
 import logging
 import typing
-
-from flask import Flask, jsonify
+from fastapi import FastAPI, APIRouter
 
 import dploy_kickstart.wrapper as pw
 import dploy_kickstart.errors as pe
@@ -12,9 +11,7 @@ import dploy_kickstart.openapi as po
 log = logging.getLogger(__name__)
 
 
-def append_entrypoint(
-    app: typing.Generic, entrypoint: str, location: str
-) -> typing.Generic:
+def append_entrypoint(app: FastAPI, entrypoint: str, location: str) -> FastAPI:
     """Add routes/functions defined in entrypoint."""
     mod = pw.import_entrypoint(entrypoint, location)
     fm = pw.get_func_annotations(mod)
@@ -22,7 +19,8 @@ def append_entrypoint(
     if not any([e.endpoint for e in fm]):
         raise Exception("no endpoints defined")
 
-    openapi_spec = po.base_spec(title=entrypoint)
+    api_router = APIRouter()
+
     # iterate over annotations in usercode
     for f in fm:
         if f.endpoint:
@@ -30,36 +28,27 @@ def append_entrypoint(
                 f"adding endpoint for func: {f.__name__} (func_args: {f.comment_args})"
             )
 
-            app.add_url_rule(
-                f.endpoint_path,
-                f.endpoint_path,
-                pw.func_wrapper(f),
+            api_router.add_api_route(
                 methods=[f.request_method.upper()],
-                strict_slashes=False
+                path=f.endpoint_path,
+                endpoint=pw.func_wrapper(f),
             )
 
-            # add info about endpoint to api spec
-            po.path_spec(openapi_spec, f)
-
-    app.add_url_rule(
-        "/openapi.yaml", "/openapi.yaml", openapi_spec.to_yaml, methods=["GET"],
-    )
-
+    app.include_router(api_router)
     return app
 
 
 def generate_app() -> typing.Generic:
-    """Generate a Flask app."""
-    app = Flask(__name__)
+    """Generate a FastApi app."""
+    app = FastAPI()
 
-    @app.route("/healthz/", methods=["GET"])
+    @app.get("/healthz/", status_code=200)
     def health_check() -> None:
-        return "healthy", 200
+        return "healthy"
 
-    @app.errorhandler(pe.ServerException)
-    def handle_server_exception(error: Exception) -> None:
-        response = jsonify(error.to_dict())
-        response.status_code = error.status_code
-        return response
-
+    # @app.errorhandler(pe.ServerException)
+    # def handle_server_exception(error: Exception) -> None:
+    #     response = jsonify(error.to_dict())
+    #     response.status_code = error.status_code
+    #     return response
     return app

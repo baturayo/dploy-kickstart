@@ -10,7 +10,8 @@ import functools
 import typing
 import traceback
 
-from flask import request
+from fastapi import Request, Body
+
 import dploy_kickstart.errors as pe
 import dploy_kickstart.transformers as pt
 import dploy_kickstart.annotations as pa
@@ -61,7 +62,7 @@ def get_func_annotations(mod: typing.Generic) -> typing.Dict:
 
 
 def import_entrypoint(entrypoint: str, location: str) -> typing.Generic:
-    """Import entryoint from user code."""
+    """Import entrypoint from user code."""
     # assert if entrypoint contains a path prefix and if so add it to location
     if os.path.dirname(entrypoint) != "":
         location = os.path.join(location, os.path.dirname(entrypoint))
@@ -101,9 +102,9 @@ def import_entrypoint(entrypoint: str, location: str) -> typing.Generic:
 def func_wrapper(f: pa.AnnotatedCallable) -> typing.Callable:
     """Wrap functions with request logic."""
 
-    def exposed_func() -> typing.Callable:
+    def exposed_func(request: Request, body=Body(...)) -> typing.Callable:
         # some sanity checking
-        if request.content_type.lower() != f.request_content_type:
+        if request.headers["content-type"].lower() != f.request_content_type:
             raise pe.UnsupportedMediaType(
                 "Please provide a valid 'Content-Type' header, valid: {}".format(
                     f.request_content_type
@@ -112,7 +113,7 @@ def func_wrapper(f: pa.AnnotatedCallable) -> typing.Callable:
 
         # preprocess input for callable
         try:
-            res = pt.MIME_TYPE_REQ_MAPPER[f.response_mime_type](f, request)
+            res = pt.MIME_TYPE_REQ_MAPPER[f.response_mime_type](f, body)
         except Exception:
             raise pe.UserApplicationError(
                 message=f"error in executing '{f.__name__}'",
@@ -120,7 +121,9 @@ def func_wrapper(f: pa.AnnotatedCallable) -> typing.Callable:
             )
 
         # determine whether or not to process response before sending it back to caller
-        wrapped_res = pt.MIME_TYPE_RES_MAPPER[request.content_type](res)
+        wrapped_res = pt.MIME_TYPE_RES_MAPPER[request.headers["content-type"].lower()](
+            res
+        )
 
         return wrapped_res
 

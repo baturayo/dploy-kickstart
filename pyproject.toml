@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dploy-kickstart"
-version = "0.1.5"
+version = "0.1.6"
 description = "Expose your functions as HTTP endpoints."
 authors = ["Bart Smeets <bart@dploy.ai>"]
 license = "MIT"
@@ -17,6 +17,8 @@ waitress = "^1.4.3"
 paste = "^3.4.0"
 flask = "^1.1.2"
 apispec = "^3.3.0"
+fastapi = "^0.61.1"
+uvicorn = "^0.12.1"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
