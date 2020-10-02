@@ -105,7 +105,7 @@ class AnnotatedCallable:
         return self.callble.__name__
 
 
-def slice_n_dice(s: str) -> list:
+def slice_n_dice(s: str) -> typing.List[str]:
     """Parse quotes within strings as separate slices."""
     in_quotes = False
     slice_points = []
