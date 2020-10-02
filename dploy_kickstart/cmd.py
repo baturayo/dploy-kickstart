@@ -56,7 +56,7 @@ def serve(
         click.echo(f"Installing deps: {deps}")
         _deps(deps, location)
 
-    app = ps.generate_app(debug=not asgi)
+    app = ps.generate_app()
     app = ps.append_entrypoint(app, entrypoint, os.path.abspath(location))
 
     uvicorn.run(

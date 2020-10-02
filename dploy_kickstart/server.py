@@ -39,9 +39,9 @@ def append_entrypoint(app: FastAPI, entrypoint: str, location: str) -> FastAPI:
     return app
 
 
-def generate_app(debug: bool) -> typing.Generic:
+def generate_app() -> typing.Generic:
     """Generate a FastApi app."""
-    app = FastAPI(debug=debug)
+    app = FastAPI()
 
     @app.get("/healthz/", status_code=200)
     async def health_check() -> None:
