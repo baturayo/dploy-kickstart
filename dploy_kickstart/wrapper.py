@@ -102,7 +102,7 @@ def import_entrypoint(entrypoint: str, location: str) -> typing.Generic:
 def func_wrapper(f: pa.AnnotatedCallable) -> typing.Callable:
     """Wrap functions with request logic."""
 
-    def exposed_func(request: Request, body=Body(...)) -> typing.Callable:
+    async def exposed_func(request: Request, body=Body(...)) -> typing.Callable:
         # some sanity checking
         if request.headers["content-type"].lower() != f.request_content_type:
             raise pe.UnsupportedMediaType(

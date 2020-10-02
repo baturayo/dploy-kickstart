@@ -3,10 +3,11 @@
 import logging
 import typing
 from fastapi import FastAPI, APIRouter
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 
 import dploy_kickstart.wrapper as pw
 import dploy_kickstart.errors as pe
-import dploy_kickstart.openapi as po
 
 log = logging.getLogger(__name__)
 
@@ -38,17 +39,17 @@ def append_entrypoint(app: FastAPI, entrypoint: str, location: str) -> FastAPI:
     return app
 
 
-def generate_app() -> typing.Generic:
+def generate_app(debug: bool) -> typing.Generic:
     """Generate a FastApi app."""
-    app = FastAPI()
+    app = FastAPI(debug=debug)
 
     @app.get("/healthz/", status_code=200)
-    def health_check() -> None:
+    async def health_check() -> None:
         return "healthy"
 
-    # @app.errorhandler(pe.ServerException)
-    # def handle_server_exception(error: Exception) -> None:
-    #     response = jsonify(error.to_dict())
-    #     response.status_code = error.status_code
-    #     return response
+    @app.exception_handler(pe.ServerException)
+    async def handle_server_exception(_, exc: pe.ServerException) -> None:
+        response = jsonable_encoder(exc)
+        return JSONResponse(status_code=exc.status_code, content=response)
+
     return app
