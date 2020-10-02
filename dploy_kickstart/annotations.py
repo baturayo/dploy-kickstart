@@ -35,7 +35,7 @@ class AnnotatedCallable:
         self.evaluate_comment_args()
 
     @staticmethod
-    def parse_comments(cs: str) -> None:
+    def parse_comments(cs: str) -> typing.List[str]:
         """Parse comments."""
         args = []
         if not cs:
@@ -115,7 +115,7 @@ def slice_n_dice(s: str) -> list:
         if slice_start >= i:
             continue
 
-        elif s[i : i + 2] in [' "', '" ']:
+        elif s[i: i + 2] in [' "', '" ']:
             slice_points.append((slice_start, i))
             in_quotes = not in_quotes
             slice_start = i + 2

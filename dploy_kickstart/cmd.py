@@ -67,19 +67,6 @@ def serve(
         host=os.getenv("DPLOY_KICKSTART_HOST", "0.0.0.0"),
         port=int(os.getenv("DPLOY_KICKSTART_PORT", 8080)),
     )
-    # if not wsgi:
-    #     click.echo("Starting Flask Development server")
-    #     app.run(
-    #         host=os.getenv("DPLOY_KICKSTART_HOST", "0.0.0.0"),
-    #         port=int(os.getenv("DPLOY_KICKSTART_PORT", 8080)),
-    #     )
-    # else:
-    #     click.echo("Starting Waitress server")
-    #     waitress_serve(
-    #         TransLogger(app, setup_console_handler=False),
-    #         host=os.getenv("dploy_kickstart_HOST", "0.0.0.0"),
-    #         port=int(os.getenv("dploy_kickstart_PORT", 8080)),
-    #     )
 
 
 @cli.command(help="install dependencies")
