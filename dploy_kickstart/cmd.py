@@ -5,8 +5,6 @@ import logging
 import typing
 
 import click
-from waitress import serve as waitress_serve
-from paste.translogger import TransLogger
 
 from dploy_kickstart import deps as pd
 from dploy_kickstart import server as ps
@@ -74,8 +72,7 @@ def serve(
     "-d",
     "--deps",
     required=True,
-    help="comma separated paths to either requirements.txt"
-    " or setup.py files",
+    help="comma separated paths to either requirements.txt" " or setup.py files",
 )
 @click.option(
     "-l",
