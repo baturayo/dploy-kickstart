@@ -87,8 +87,8 @@ def serve(
     "-d",
     "--deps",
     required=True,
-    help="comma separated paths to either requirements.txt,"
-    " setup.py or poetry.lock files",
+    help="comma separated paths to either requirements.txt"
+    " or setup.py files",
 )
 @click.option(
     "-l",
@@ -117,7 +117,7 @@ def _deps(deps: str, location: str) -> None:
             raise Exception(
                 "unsupported dependency install defined: {}. "
                 "Supported formats: "
-                "requirements.txt, setup.py, poetry.lock".format(r)
+                "requirements.txt, setup.py".format(r)
             )
 
 
