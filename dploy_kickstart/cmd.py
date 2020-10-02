@@ -2,7 +2,6 @@
 
 import os
 import logging
-import typing
 
 import click
 
@@ -38,10 +37,10 @@ def cli() -> None:
     + "'install-deps' command",
 )
 @click.option(
-    "--wsgi/--no-wsgi",
+    "--asgi/--no-asgi",
     default=True,
-    help="Use Waitress as a WSGI server, defaults to True,"
-    + " else launches a Flask debug server.",
+    help="Use ASGI server, defaults to True,"
+    + " else launches a FastAPI debug server.",
 )
 @click.option(
     "-h", "--host", help="Host to serve on, defaults to '0.0.0.0'", default="0.0.0.0"
@@ -50,14 +49,14 @@ def cli() -> None:
     "-p", "--port", help="Port to serve on, defaults to '8080'", default=8080, type=int
 )
 def serve(
-    entrypoint: str, location: str, deps: str, wsgi: bool, host: str, port: int
-) -> typing.Any:
+    entrypoint: str, location: str, deps: str, asgi: bool, host: str, port: int
+) -> None:
     """CLI serve."""
     if deps:
         click.echo(f"Installing deps: {deps}")
         _deps(deps, location)
 
-    app = ps.generate_app()
+    app = ps.generate_app(debug=not asgi)
     app = ps.append_entrypoint(app, entrypoint, os.path.abspath(location))
 
     uvicorn.run(
@@ -105,8 +104,9 @@ def _deps(deps: str, location: str) -> None:
             )
 
 
-# if __name__ == "__main__":
-#     _entrypoint = "ml_skeleton_py/model/predict.py"
-#     _location = "/Users/baturayofluoglu/PycharmProjects/ml-skeleton-py/"
-#     _deps = False
-#     serve(_entrypoint, _location, _deps, wsgi=False, host="0.0.0.0", port=80)
+if __name__ == "__main__":
+    _entrypoint = "cbt_v2/deployment.py"
+    _location = "/Users/baturayofluoglu/Workspace/ai-email-cbt-tfidf"
+    _deps = False
+    os.environ["LANGUAGE"] = "en"
+    serve(_entrypoint, _location, _deps, asgi=True, host="0.0.0.0", port=80)
